@@ -9,10 +9,12 @@ public class TopKontrol : MonoBehaviour
     [Header("Atamalar")]
     [SerializeField] GameObject _halka;
     [SerializeField] GameObject _renkTekeri;
+    [SerializeField] GameObject _settingsPanel;
     Rigidbody2D _rigidbody;
 
     [Header("User Inteface Atamalari")]
     [SerializeField] Text _scoreText;
+    [SerializeField] Text _bestScoreText;
 
     [Header("Degiskenler")]
     [SerializeField] float _ziplamaKuvveti = 3f;
@@ -21,7 +23,7 @@ public class TopKontrol : MonoBehaviour
     [SerializeField] Color _turkuaz, _sari, _mor, _pembe;
 
     float _score = 0f;
-    bool _basildiMi = false;
+    bool _basildiMi = false, _oyunBaslasin = false;
 
     private void Awake()
     {
@@ -30,22 +32,28 @@ public class TopKontrol : MonoBehaviour
     private void Start()
     {
         _scoreText.text = "Score: " + _score;
+        _bestScoreText.text = "BestScore : " + PlayerPrefs.GetFloat("BestScore",0);
         RastgeleRenkBelirle();
     }
     private void Update()
     {
-        if (transform.position.y < -5)
+        if (!_oyunBaslasin || _settingsPanel.activeInHierarchy == true)
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            Time.timeScale = 0;
+        }
+        else
+        {
+            Time.timeScale = 1;
+            if (transform.position.y < -5)
+                RestartGame();
+            if (Input.GetMouseButtonDown(0))
+                _basildiMi = true;
+            else if (Input.GetMouseButtonUp(0))
+                _basildiMi = false;
+            return;
         }
         if (Input.GetMouseButtonDown(0))
-        {
-            _basildiMi = true;
-        }
-        else if (Input.GetMouseButtonUp(0))
-        {
-            _basildiMi = false;
-        }
+            _oyunBaslasin = true;
     }
     private void FixedUpdate()
     {
@@ -58,7 +66,6 @@ public class TopKontrol : MonoBehaviour
         if (collision.CompareTag("RenkTekeri"))
         {
             RastgeleRenkBelirle();
-            _ziplamaKuvveti += 1f;
             Destroy(collision.gameObject);
             return;
         }
@@ -66,14 +73,16 @@ public class TopKontrol : MonoBehaviour
         {
             _score += 5;
             _scoreText.text = "Score: " + _score;
+            if (PlayerPrefs.GetFloat("BestScore") < _score)
+                PlayerPrefs.SetFloat("BestScore", _score);
             Destroy(collision.gameObject);
-            Instantiate(_halka, new Vector3(transform.position.x, transform.position.y + 8f, transform.position.z), Quaternion.identity).GetComponent<HalkaKontrol>()._donmeHizi *= 2;
+            Instantiate(_halka, new Vector3(transform.position.x, transform.position.y + 8f, transform.position.z), Quaternion.identity);
             Instantiate(_renkTekeri, new Vector3(transform.position.x, transform.position.y + 11f, transform.position.z), Quaternion.identity);
         }
         if (collision.tag != _mevcutRenk && !collision.CompareTag("PuanArttirici"))
         {
             _score = 0;
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            RestartGame();
         }
     }
 
@@ -100,5 +109,12 @@ public class TopKontrol : MonoBehaviour
                 break;
         }
         GetComponent<SpriteRenderer>().color = _topunRengi;
+    }
+
+    void RestartGame()
+    {
+        _bestScoreText.text = "BestScore : " + PlayerPrefs.GetFloat("BestScore");
+        
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }/**/

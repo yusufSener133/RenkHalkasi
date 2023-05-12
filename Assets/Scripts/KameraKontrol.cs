@@ -10,8 +10,6 @@ public class KameraKontrol : MonoBehaviour
     private void LateUpdate()
     {
         if (_topTransform.position.y > transform.position.y)
-        {
-            transform.position = new Vector3(transform.position.x, _topTransform.position.y,transform.position.z);
-        }
+            transform.position = new Vector3(transform.position.x, _topTransform.position.y, transform.position.z);
     }
 }/**/

@@ -11,13 +11,8 @@ public class HalkaKontrol : MonoBehaviour
     private void FixedUpdate()
     {
         if (_solaDon)
-        {
             transform.Rotate(0, 0, _donmeHizi * Time.deltaTime);
-        }
         else
-        {
             transform.Rotate(0, 0, -_donmeHizi * Time.deltaTime);
-        }
-
     }
 }/**/
